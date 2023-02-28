@@ -1,0 +1,71 @@
+# action.yml
+name: "Hello World"
+description: "Upgrade ROS2 Package version and release CI."
+inputs:
+  target-package:
+    description: "The target ROS2 package name."
+    required: true
+  version-fragment:
+    description: "The versions fragment to increment. [ 'major' | 'feature' | 'bug' ]"
+    required: true
+  create-release:
+    description: "Create release or not. [ 'true' | 'false' ]"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+
+    - run: echo "${{ github.action_path }}/scripts" >> $GITHUB_PATH
+      shell: bash
+
+    - id: get_current_version
+      run: |
+        get_current_version.sh ${{ inputs.target-package }}
+      shell: bash
+
+    - id: increment_version
+      env:
+        current-version: ${{ steps.get_current_version.outputs.current-version }}
+      shell: bash
+      run: |
+        increment_version.sh ${{ env.current-version }} ${{ inputs.version-fragment }}
+
+    - id: bump_version
+      shell: bash
+      env:
+        ver-to: ${{ steps.increment_version.outputs.next-version }}
+      run: |
+        bump_up.sh ${{ inputs.target-package }} ${{ env.ver-to }}
+
+    - id: commit_change
+      shell: bash
+      env:
+        user-name: github-actions[bot]
+        user-email: 67199519+github-actions[bot]@users.noreply.github.com
+        ver-from: ${{ steps.get_current_version.outputs.current-version }}
+        ver-to: ${{ steps.increment_version.outputs.next-version }}
+      run: |
+        commit_change.sh \
+          ${{ inputs.target-package }} \
+          ${{ env.user-name }} ${{ env.user-email }} ${{ env.ver-from }} ${{ env.ver-to }}
+
+    - id: create_pull_request
+      shell: bash
+      env:
+        ver-from: ${{ steps.get_current_version.outputs.current-version }}
+        ver-to: ${{ steps.increment_version.outputs.next-version }}
+      run: |
+        create_pull_request.sh ${{ inputs.target-package }} ${{ env.ver-from }} ${{ env.ver-to }}
+
+    - id: create_release
+      shell: bash
+      if: ${{ inputs.create-release }} == "true"
+      env:
+        pr-url: ${{ steps.create_pull_request.outputs.pr-url }}
+        head-branch: ${{ steps.commit_change.outputs.head-branch }}
+        ver-to: ${{ steps.increment_version.outputs.next-version }}
+      run: |
+        create_release.sh ${{ env.head-branch }} ${{ env.pr-url }} ${{ env.ver-to }}
