@@ -38,3 +38,12 @@ runs:
       run: |
         ${{ github.action_path }}/scripts/commit_change.sh \
           ${{ env.user_name }} ${{ env.user_email }} ${{ env.ver_from }} ${{ env.ver_to }}
+    - id: create_release
+      shell: bash
+      env:
+        release-url: ${{ github.server_url }}/${{ github.repository }}/releases
+        ver-from: ${{ steps.get_current_version.outputs.current_version }}
+        ver-to: ${{ steps.bump_version.outputs.next-version }}
+      run: |
+        ${{ github.action_path }}/scripts/create_release.sh \
+          ${{ env.release-url }} ${{ env.ver-from }} ${{ env.ver-to }}

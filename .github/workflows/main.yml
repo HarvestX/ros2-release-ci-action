@@ -10,6 +10,8 @@ jobs:
       - name: Upgrade ROS2 package version
         uses: ./ # Uses an action in the root directory
         id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           target-package: 'sample_package_01'
           version-fragment: 'bug'

@@ -6,9 +6,6 @@ main() {
   user_name=$1
   user_email=$2
 
-  echo "User is: $user_name"
-  echo "Email is: $user_email"
-
   ver_from=$3
   ver_to=$4
 
