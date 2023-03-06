@@ -1,16 +1,40 @@
 # action.yml
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: "Hello World"
+description: "Upgrade ROS2 Package version and release CI."
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  target-package:
+    description: "The target ROS2 package name."
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  version-fragment:
+    description: "The versions fragment you want to increment. possible options are [ major | feature | bug | alpha | beta | rc ]"
+    required: true
+
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.who-to-greet }}
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+    - id: get_current_version
+      run: |
+        ${{ github.action_path }}/scripts/get_current_version.sh ${{ inputs.target-package }}
+      shell: bash
+    - id: bump_version
+      uses: christian-draeger/increment-semantic-version@1.0.3
+      with:
+        current-version: ${{ steps.get_current_version.outputs.current_version }}
+        version-fragment: ${{ inputs.version-fragment }}
+    - id: update_version
+      shell: bash
+      run: |
+        ${{ github.action_path }}/scripts/bump_up.sh \
+          ${{ inputs.target-package }} \
+          ${{ steps.bump_version.outputs.next-version }}
+    - id: commit_change
+      shell: bash
+      env:
+        user_name: github-actions[bot]
+        user_email: 67199519+github-actions[bot]@users.noreply.github.com
+        ver_from: ${{ steps.get_current_version.outputs.current_version }}
+        ver_to: ${{ steps.bump_version.outputs.next-version }}
+      run: |
+        ${{ github.action_path }}/scripts/commit_change.sh \
+          ${{ env.user_name }} ${{ env.user_email }} ${{ env.ver_from }} ${{ env.ver_to }}

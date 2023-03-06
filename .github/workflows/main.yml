@@ -1,17 +1,15 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  upgrade_ros2_ci:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: Upgrade ROS2 version CI
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Hello world action step
+      - name: Upgrade ROS2 package version
         uses: ./ # Uses an action in the root directory
-        id: hello
+        id: release
         with:
-          who-to-greet: 'Mona the Octocat'
-      # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+          target-package: 'sample_package_01'
+          version-fragment: 'bug'
