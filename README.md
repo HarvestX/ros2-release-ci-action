@@ -36,4 +36,4 @@ jobs:
 | :----------------: | :--------------------------------------------------: | :---------: | :----------: |
 |    `target-pkg`    | The target ROS2 package name to bump up the version. |   *None*    |    *True*    |
 | `version-fragment` |         The versions fragment to increment.          |   *None*    |    *True*    |
-|  `create-release`  |          Create Github release page or not.          |   'false'   |    *False*    |
+|  `create-release`  |          Create Github release page or not.          |   `false`   |   *False*    |
