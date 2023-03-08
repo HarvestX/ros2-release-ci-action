@@ -11,7 +11,7 @@ inputs:
   create-release:
     description: "Create release or not. [ 'true' | 'false' ]"
     required: false
-    default: "false"
+    default: false
 
 runs:
   using: "composite"
@@ -62,7 +62,7 @@ runs:
 
     - id: create_release
       shell: bash
-      if: ${{ inputs.create-release }} == "true"
+      if: ${{ inputs.create-release }}
       env:
         pr-url: ${{ steps.create_pull_request.outputs.pr-url }}
         head-branch: ${{ steps.commit_change.outputs.head-branch }}

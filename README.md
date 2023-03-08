@@ -28,7 +28,7 @@ jobs:
         with:
           target-package: 'your_ros2_pkg_name'
           version-fragment: ${{ github.event.inputs.fragment }}
-          create-release: 'true'
+          create-release: true
 ```
 
 ### Input parameters
