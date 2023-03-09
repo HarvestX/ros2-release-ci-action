@@ -11,7 +11,7 @@ inputs:
   create-release:
     description: "Create release or not. [ 'true' | 'false' ]"
     required: false
-    default: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -68,4 +68,6 @@ runs:
         head-branch: ${{ steps.commit_change.outputs.head-branch }}
         ver-to: ${{ steps.increment_version.outputs.next-version }}
       run: |
-        create_release.sh ${{ env.head-branch }} ${{ env.pr-url }} ${{ env.ver-to }}
+        if ${{ inputs.create-release }} == "true"; then
+          create_release.sh ${{ env.head-branch }} ${{ env.pr-url }} ${{ env.ver-to }}
+        fi
